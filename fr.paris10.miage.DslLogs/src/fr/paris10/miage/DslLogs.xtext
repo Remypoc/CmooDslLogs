@@ -1,0 +1,44 @@
+grammar fr.paris10.miage.DslLogs with org.eclipse.xtext.common.Terminals
+
+generate dslLogs "http://www.paris10.fr/miage/DslLogs"
+
+Model:
+	logs+=Log*;
+	
+Log:
+	'à' date=Date
+	'utilisateur' utilisateur=Utilisateur 
+	action=Action
+	(parametre=Parametre)? //Il peut y avoir 0 ou 1 classe parametre
+	'réponse' reponse=Reponse
+;
+	
+Date:
+	annee=INT '/' mois=INT '/' jour=INT '-' heure=INT ':' minute=INT ':' seconde=INT
+;
+
+Parametre:
+	name=ID '=' value=STRING
+;
+
+Utilisateur:
+	name=ID
+;
+
+enum Reponse:
+	OK='OK' | ERROR='KO'
+;
+
+Action:
+	Demande | Appel
+;
+
+Demande:
+	'demande' page=STRING
+;
+
+Appel:
+	'appelle' page=STRING
+	('paramètres' parametres+=Parametre ('et' parametres+=Parametre)*)? //Il peut y 0 ou 1 paramètres, s'il y a 1 paramètre 
+	//il peut y avoir 0 ou n autres paramètres en plus
+;
