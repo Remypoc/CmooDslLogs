@@ -27,9 +27,13 @@ class DslLogsGenerator extends AbstractGenerator {
 		//val model = resource.allContents.filter(typeof(Model)).toList.get(0);
 		
 		//Permet de récupérer nos utilisateurs
-		//val users = resource.allContents.filter(typeof(Utilisateur)).toSet;
+		val users = resource.allContents.filter(typeof(Utilisateur)).toSet;
 		
 		fsa.generateFile("index.html", genererHTML("Logs", genererIndex(resource)))
+		
+		for(Utilisateur user : users) {
+			fsa.generateFile(user.name + ".html", genererHTML(user.name, null))
+		}
 	}
 	
 	//Template de nos pages html

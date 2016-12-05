@@ -27,9 +27,19 @@ import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 public class DslLogsGenerator extends AbstractGenerator {
   @Override
   public void doGenerate(final Resource resource, final IFileSystemAccess2 fsa, final IGeneratorContext context) {
+    TreeIterator<EObject> _allContents = resource.getAllContents();
+    Iterator<Utilisateur> _filter = Iterators.<Utilisateur>filter(_allContents, Utilisateur.class);
+    final Set<Utilisateur> users = IteratorExtensions.<Utilisateur>toSet(_filter);
     String _genererIndex = this.genererIndex(resource);
     CharSequence _genererHTML = this.genererHTML("Logs", _genererIndex);
     fsa.generateFile("index.html", _genererHTML);
+    for (final Utilisateur user : users) {
+      String _name = user.getName();
+      String _plus = (_name + ".html");
+      String _name_1 = user.getName();
+      CharSequence _genererHTML_1 = this.genererHTML(_name_1, null);
+      fsa.generateFile(_plus, _genererHTML_1);
+    }
   }
   
   public CharSequence genererHTML(final String titre, final String contents) {
