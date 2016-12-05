@@ -4,9 +4,16 @@
 package fr.paris10.miage.generator;
 
 import com.google.common.collect.Iterators;
+import fr.paris10.miage.dslLogs.Action;
+import fr.paris10.miage.dslLogs.Appel;
+import fr.paris10.miage.dslLogs.Demande;
+import fr.paris10.miage.dslLogs.Log;
+import fr.paris10.miage.dslLogs.Parametre;
 import fr.paris10.miage.dslLogs.Utilisateur;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -17,6 +24,7 @@ import org.eclipse.xtext.generator.IGeneratorContext;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
+import org.eclipse.xtext.xbase.lib.ListExtensions;
 
 /**
  * Generates code from your model files on save.
@@ -30,6 +38,9 @@ public class DslLogsGenerator extends AbstractGenerator {
     TreeIterator<EObject> _allContents = resource.getAllContents();
     Iterator<Utilisateur> _filter = Iterators.<Utilisateur>filter(_allContents, Utilisateur.class);
     final Set<Utilisateur> users = IteratorExtensions.<Utilisateur>toSet(_filter);
+    TreeIterator<EObject> _allContents_1 = resource.getAllContents();
+    Iterator<Log> _filter_1 = Iterators.<Log>filter(_allContents_1, Log.class);
+    final List<Log> logs = IteratorExtensions.<Log>toList(_filter_1);
     String _genererIndex = this.genererIndex(resource);
     CharSequence _genererHTML = this.genererHTML("Logs", _genererIndex);
     fsa.generateFile("index.html", _genererHTML);
@@ -37,7 +48,9 @@ public class DslLogsGenerator extends AbstractGenerator {
       String _name = user.getName();
       String _plus = (_name + ".html");
       String _name_1 = user.getName();
-      CharSequence _genererHTML_1 = this.genererHTML(_name_1, null);
+      String _genererLogs = this.genererLogs(user, logs);
+      String _templateImage = this.templateImage(_genererLogs);
+      CharSequence _genererHTML_1 = this.genererHTML(_name_1, _templateImage);
       fsa.generateFile(_plus, _genererHTML_1);
     }
   }
@@ -135,6 +148,8 @@ public class DslLogsGenerator extends AbstractGenerator {
     _builder.newLine();
     _builder.append("}");
     _builder.newLine();
+    _builder.append(content, "");
+    _builder.newLineIfNotEmpty();
     return _builder.toString();
   }
   
@@ -146,5 +161,108 @@ public class DslLogsGenerator extends AbstractGenerator {
     _builder.append(name, "");
     _builder.append("</a></li> ");
     return _builder.toString();
+  }
+  
+  public String genererLogs(final Utilisateur user, final List<Log> logs) {
+    StringConcatenation _builder = new StringConcatenation();
+    _builder.append("<ul>");
+    _builder.newLine();
+    {
+      for(final Log log : logs) {
+        _builder.append("\t");
+        _builder.append("\t");
+        _builder.newLine();
+      }
+    }
+    _builder.append("</ul>");
+    _builder.newLine();
+    return _builder.toString();
+  }
+  
+  /**
+   * «IF user.name.equals(log.utilisateur.name)»
+   * «ENDIF»
+   */
+  public CharSequence genererAction(final Action action, final Utilisateur user, final boolean ok) {
+    if ((action instanceof Demande)) {
+      return this.genererAction(((Demande) action), user, ok);
+    } else {
+      if ((action instanceof Appel)) {
+        return this.genererAction(((Appel) action), user, ok);
+      }
+    }
+    return null;
+  }
+  
+  public CharSequence genererAction(final Demande demande, final Utilisateur user, final boolean ok) {
+    StringConcatenation _builder = new StringConcatenation();
+    String _name = user.getName();
+    _builder.append(_name, "");
+    _builder.append(" -> SYSTEM : GET ");
+    String _page = demande.getPage();
+    _builder.append(_page, "");
+    _builder.newLineIfNotEmpty();
+    {
+      if (ok) {
+        _builder.append("SYSTEM -[#00AA00] -> ");
+        String _name_1 = user.getName();
+        _builder.append(_name_1, "");
+        _builder.append(" : page");
+        _builder.newLineIfNotEmpty();
+      } else {
+        _builder.append("SYSTEM -[#AA0000] -> ");
+        String _name_2 = user.getName();
+        _builder.append(_name_2, "");
+        _builder.append(" : erreur");
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    return _builder;
+  }
+  
+  public CharSequence genererParametre(final Parametre param) {
+    StringConcatenation _builder = new StringConcatenation();
+    String _name = param.getName();
+    _builder.append(_name, "");
+    _builder.append("=");
+    String _value = param.getValue();
+    _builder.append(_value, "");
+    _builder.newLineIfNotEmpty();
+    return _builder;
+  }
+  
+  public CharSequence genererAction(final Appel appel, final Utilisateur user, final boolean ok) {
+    StringConcatenation _builder = new StringConcatenation();
+    String _name = user.getName();
+    _builder.append(_name, "");
+    _builder.append(" -> SYSTEM : POST ");
+    String _page = appel.getPage();
+    _builder.append(_page, "");
+    _builder.append("(");
+    EList<Parametre> _parametres = appel.getParametres();
+    final Function1<Parametre, CharSequence> _function = (Parametre it) -> {
+      return this.genererParametre(it);
+    };
+    List<CharSequence> _map = ListExtensions.<Parametre, CharSequence>map(_parametres, _function);
+    String _join = IterableExtensions.join(_map, ", ");
+    _builder.append(_join, "");
+    _builder.append(")");
+    _builder.newLineIfNotEmpty();
+    {
+      if (ok) {
+        _builder.append("SYSTEM -[#00AA00] -> ");
+        String _name_1 = user.getName();
+        _builder.append(_name_1, "");
+        _builder.append(" : page");
+        _builder.newLineIfNotEmpty();
+      } else {
+        _builder.append("SYSTEM -[#AA0000] -> ");
+        String _name_2 = user.getName();
+        _builder.append(_name_2, "");
+        _builder.append(" : erreur");
+        _builder.newLineIfNotEmpty();
+      }
+    }
+    return _builder;
   }
 }

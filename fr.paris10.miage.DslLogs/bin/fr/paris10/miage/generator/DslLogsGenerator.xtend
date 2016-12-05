@@ -8,6 +8,12 @@ import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import fr.paris10.miage.dslLogs.Utilisateur
+import fr.paris10.miage.dslLogs.Log
+import java.util.List
+import fr.paris10.miage.dslLogs.Demande
+import fr.paris10.miage.dslLogs.Appel
+import fr.paris10.miage.dslLogs.Action
+import fr.paris10.miage.dslLogs.Parametre
 
 /**
  * Generates code from your model files on save.
@@ -29,10 +35,13 @@ class DslLogsGenerator extends AbstractGenerator {
 		//Permet de récupérer nos utilisateurs
 		val users = resource.allContents.filter(typeof(Utilisateur)).toSet;
 		
+		//Permet de récupérer tout nos logs
+		val logs = resource.allContents.filter(typeof(Log)).toList;
+		
 		fsa.generateFile("index.html", genererHTML("Logs", genererIndex(resource)))
 		
 		for(Utilisateur user : users) {
-			fsa.generateFile(user.name + ".html", genererHTML(user.name, null))
+			fsa.generateFile(user.name + ".html", genererHTML(user.name, templateImage(genererLogs(user, logs))));
 		}
 	}
 	
@@ -87,10 +96,55 @@ class DslLogsGenerator extends AbstractGenerator {
 			ParticipantBackgroundColor White
 			ParticipantFontColor Black
 		}
+		«content»
 		'''
 	}
 	
 	def genererListe(String name) {
 		return '''<li><a href="«name».html">«name»</a></li> '''
 	}
+	
+	def genererLogs(Utilisateur user, List<Log> logs) {
+	return '''
+		<ul>
+			«FOR log : logs»
+				
+			«ENDFOR»
+		</ul>
+		'''
+		}
+		
+		/*«IF user.name.equals(log.utilisateur.name)»
+		  «ENDIF»*/
+	
+	//En fonction du type d'action on va appeler demande ou appel
+	def genererAction(Action action, Utilisateur user, boolean ok) {
+		if(action instanceof Demande) {
+			return genererAction(action as Demande, user, ok); // Le as correspond à un cast
+		} else if (action instanceof Appel) {
+			return genererAction(action as Appel, user, ok);
+		}
+	}
+	
+	def genererAction(Demande demande, Utilisateur user, boolean ok) '''
+		«user.name» -> SYSTEM : GET «demande.page»
+		«IF ok»
+		SYSTEM -[#00AA00] -> «user.name» : page
+		«ELSE»
+		SYSTEM -[#AA0000] -> «user.name» : erreur
+		«ENDIF»
+		'''
+		
+	def genererParametre(Parametre param) '''
+		«param.name»=«param.value»
+	'''
+		
+	def genererAction(Appel appel, Utilisateur user, boolean ok) '''
+		«user.name» -> SYSTEM : POST «appel.page»(«appel.parametres.map[genererParametre].join(', ')»)
+		«IF ok»
+		SYSTEM -[#00AA00] -> «user.name» : page
+		«ELSE»
+		SYSTEM -[#AA0000] -> «user.name» : erreur
+		«ENDIF»
+		'''
 }
