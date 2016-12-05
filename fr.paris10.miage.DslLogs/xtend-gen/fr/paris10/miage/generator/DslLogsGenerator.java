@@ -85,7 +85,18 @@ public class DslLogsGenerator extends AbstractGenerator {
     return _builder.toString();
   }
   
-  public String templateImage() {
+  /**
+   * def genererIndex(Set<String> users) {
+   * '''
+   * <ul>
+   * «FOR user : users»
+   * <li><a href="«user».html">«user»</a></li>
+   * «ENDFOR»
+   * </ul>
+   * '''
+   * }
+   */
+  public String templateImage(final String content) {
     StringConcatenation _builder = new StringConcatenation();
     _builder.append("<img uml=\"@startuml");
     _builder.newLine();
@@ -96,6 +107,21 @@ public class DslLogsGenerator extends AbstractGenerator {
     _builder.newLine();
     _builder.append("\t");
     _builder.append("ActorBorderColor Black");
+    _builder.newLine();
+    _builder.append("\t");
+    _builder.append("LifeLineBorderColor Black");
+    _builder.newLine();
+    _builder.append("\t");
+    _builder.append("LifeLineBackgroundColor Black");
+    _builder.newLine();
+    _builder.append("\t");
+    _builder.append("ParticipantBorderColor Black");
+    _builder.newLine();
+    _builder.append("\t");
+    _builder.append("ParticipantBackgroundColor White");
+    _builder.newLine();
+    _builder.append("\t");
+    _builder.append("ParticipantFontColor Black");
     _builder.newLine();
     _builder.append("}");
     _builder.newLine();

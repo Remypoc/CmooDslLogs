@@ -8,6 +8,7 @@ import fr.paris10.miage.dslLogs.Appel
 import fr.paris10.miage.dslLogs.DslLogsPackage
 import fr.paris10.miage.dslLogs.Model
 import fr.paris10.miage.dslLogs.Demande
+import java.time.LocalDateTime
 
 /**
  * This class contains custom validation rules. 
@@ -27,10 +28,10 @@ class DslLogsValidator extends AbstractDslLogsValidator {
 //		}
 //	}
 	// Vérifier que les dates sont bien dans l'ordre chronologiques
-	@Check(NORMAL)
+	@Check(FAST)
 	def checkDateOrdreChronologique(Model model) {
-		/* model.logs
-		 .map[date] //on récupère toutes les dates */
+		var current = LocalDateTime.MIN;
+		var last = LocalDateTime.MIN;
 	}
 
 	public static val ERROR_EXT_JSP = "invalidExtension"

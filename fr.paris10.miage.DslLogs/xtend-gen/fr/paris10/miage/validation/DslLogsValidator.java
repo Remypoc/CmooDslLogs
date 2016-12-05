@@ -8,6 +8,7 @@ import fr.paris10.miage.dslLogs.Demande;
 import fr.paris10.miage.dslLogs.DslLogsPackage;
 import fr.paris10.miage.dslLogs.Model;
 import fr.paris10.miage.validation.AbstractDslLogsValidator;
+import java.time.LocalDateTime;
 import org.eclipse.xtext.validation.Check;
 import org.eclipse.xtext.validation.CheckType;
 
@@ -18,9 +19,10 @@ import org.eclipse.xtext.validation.CheckType;
  */
 @SuppressWarnings("all")
 public class DslLogsValidator extends AbstractDslLogsValidator {
-  @Check(CheckType.NORMAL)
-  public Object checkDateOrdreChronologique(final Model model) {
-    return null;
+  @Check(CheckType.FAST)
+  public void checkDateOrdreChronologique(final Model model) {
+    LocalDateTime current = LocalDateTime.MIN;
+    LocalDateTime last = LocalDateTime.MIN;
   }
   
   public final static String ERROR_EXT_JSP = "invalidExtension";

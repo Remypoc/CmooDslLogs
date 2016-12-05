@@ -22,6 +22,13 @@ class DslLogsGenerator extends AbstractGenerator {
 //				.filter(typeof(Greeting))
 //				.map[name]
 //				.join(', '))
+
+		//Permet de récupérer notre model
+		//val model = resource.allContents.filter(typeof(Model)).toList.get(0);
+		
+		//Permet de récupérer nos utilisateurs
+		//val users = resource.allContents.filter(typeof(Utilisateur)).toSet;
+		
 		fsa.generateFile("index.html", genererHTML("Logs", genererIndex(resource)))
 	}
 	
@@ -39,11 +46,14 @@ class DslLogsGenerator extends AbstractGenerator {
 	</HTML>
 	'''
 	
+	// Si on fait un toSet il faut s'assurer que la méthodes equals est bien définie pour 
+	// le type d'objet que l'on veut récupérer (ici c'est un String donc c'est ok).
+	// On aurait pu utiliser distinct().
 	def genererIndex(Resource resource) {
 		return ''' <ul>
 		«resource.allContents
 			.filter(typeof(Utilisateur))
-			.map[name].toSet //sinon on recupere plusieurs fois nos utilisateurs
+			.map[name].toSet //sinon on recupere plusieurs fois les mêmes utilisateurs
 			.map[genererListe]
 			.join('\n')
 		»
@@ -51,12 +61,27 @@ class DslLogsGenerator extends AbstractGenerator {
 		'''
 	}
 	
-	def templateImage() {
+	/*def genererIndex(Set<String> users) {
+		'''
+			<ul>
+			«FOR user : users»
+			<li><a href="«user».html">«user»</a></li>
+			«ENDFOR»
+			</ul>
+		'''
+	}*/
+	
+	def templateImage(String content) {
 		return '''
 		<img uml="@startuml
 		skinparam sequence {
 			ArrowColor Black
 			ActorBorderColor Black
+			LifeLineBorderColor Black
+			LifeLineBackgroundColor Black
+			ParticipantBorderColor Black
+			ParticipantBackgroundColor White
+			ParticipantFontColor Black
 		}
 		'''
 	}
