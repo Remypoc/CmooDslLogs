@@ -165,17 +165,16 @@ public class DslLogsGenerator extends AbstractGenerator {
   
   public String genererLogs(final Utilisateur user, final List<Log> logs) {
     StringConcatenation _builder = new StringConcatenation();
-    _builder.append("<ul>");
-    _builder.newLine();
     {
       for(final Log log : logs) {
-        _builder.append("\t");
-        _builder.append("\t");
+        Action _action = log.getAction();
+        CharSequence _genererAction = this.genererAction(_action, user, true);
+        _builder.append(_genererAction, "");
+        _builder.newLineIfNotEmpty();
+        _builder.append("hello");
         _builder.newLine();
       }
     }
-    _builder.append("</ul>");
-    _builder.newLine();
     return _builder.toString();
   }
   

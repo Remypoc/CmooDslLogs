@@ -106,11 +106,10 @@ class DslLogsGenerator extends AbstractGenerator {
 	
 	def genererLogs(Utilisateur user, List<Log> logs) {
 	return '''
-		<ul>
-			«FOR log : logs»
-				
-			«ENDFOR»
-		</ul>
+		«FOR log : logs»
+			«genererAction(log.action, user, true)»
+			hello
+		«ENDFOR»
 		'''
 		}
 		

@@ -4,11 +4,14 @@
 package fr.paris10.miage.validation;
 
 import fr.paris10.miage.dslLogs.Appel;
+import fr.paris10.miage.dslLogs.Date;
 import fr.paris10.miage.dslLogs.Demande;
 import fr.paris10.miage.dslLogs.DslLogsPackage;
+import fr.paris10.miage.dslLogs.Log;
 import fr.paris10.miage.dslLogs.Model;
 import fr.paris10.miage.validation.AbstractDslLogsValidator;
 import java.time.LocalDateTime;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtext.validation.Check;
 import org.eclipse.xtext.validation.CheckType;
 
@@ -19,13 +22,41 @@ import org.eclipse.xtext.validation.CheckType;
  */
 @SuppressWarnings("all")
 public class DslLogsValidator extends AbstractDslLogsValidator {
-  @Check(CheckType.FAST)
-  public void checkDateOrdreChronologique(final Model model) {
-    LocalDateTime current = LocalDateTime.MIN;
-    LocalDateTime last = LocalDateTime.MIN;
-  }
+  public final static String INVALID_ORDER = "invalidOrder";
   
   public final static String ERROR_EXT_JSP = "invalidExtension";
+  
+  @Check(CheckType.FAST)
+  public void checkDateOrdreChronologique(final Model model) {
+    LocalDateTime last = LocalDateTime.MIN;
+    LocalDateTime current = LocalDateTime.MIN;
+    EList<Log> _logs = model.getLogs();
+    for (final Log e : _logs) {
+      {
+        Date _date = e.getDate();
+        int _annee = _date.getAnnee();
+        Date _date_1 = e.getDate();
+        int _mois = _date_1.getMois();
+        Date _date_2 = e.getDate();
+        int _jour = _date_2.getJour();
+        Date _date_3 = e.getDate();
+        int _heure = _date_3.getHeure();
+        Date _date_4 = e.getDate();
+        int _minute = _date_4.getMinute();
+        Date _date_5 = e.getDate();
+        int _seconde = _date_5.getSeconde();
+        LocalDateTime _of = LocalDateTime.of(_annee, _mois, _jour, _heure, _minute, _seconde);
+        current = _of;
+        boolean _isBefore = current.isBefore(last);
+        if (_isBefore) {
+          this.error("Les logs ne sont pas organisés chronologiquement !", DslLogsPackage.Literals.MODEL__LOGS, 
+            DslLogsValidator.INVALID_ORDER);
+        } else {
+          last = current;
+        }
+      }
+    }
+  }
   
   @Check(CheckType.FAST)
   public void checkAppelsJspPage(final Appel appel) {

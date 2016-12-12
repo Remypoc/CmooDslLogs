@@ -9,6 +9,7 @@ import fr.paris10.miage.dslLogs.DslLogsPackage
 import fr.paris10.miage.dslLogs.Model
 import fr.paris10.miage.dslLogs.Demande
 import java.time.LocalDateTime
+import fr.paris10.miage.dslLogs.Log
 
 /**
  * This class contains custom validation rules. 
@@ -27,14 +28,27 @@ class DslLogsValidator extends AbstractDslLogsValidator {
 //					INVALID_NAME)
 //		}
 //	}
+
+	public static val INVALID_ORDER = "invalidOrder"
+	public static val ERROR_EXT_JSP = "invalidExtension"
+
 	// Vérifier que les dates sont bien dans l'ordre chronologiques
 	@Check(FAST)
 	def checkDateOrdreChronologique(Model model) {
-		var current = LocalDateTime.MIN;
-		var last = LocalDateTime.MIN;
-	}
-
-	public static val ERROR_EXT_JSP = "invalidExtension"
+        var last = LocalDateTime.MIN
+        var current = LocalDateTime.MIN
+        for(Log e : model.logs) {
+            current = LocalDateTime.of(e.date.annee, e.date.mois,e.date.jour,
+            e.date.heure,e.date.minute,e.date.seconde)
+            if(current.isBefore(last)) {
+                error('Les logs ne sont pas organisés chronologiquement !',DslLogsPackage.Literals.MODEL__LOGS,
+                INVALID_ORDER)
+            }
+            else {
+                last = current
+            }
+        }
+    }
 
 	// On vérifie que les appels se font bien sur des pages jsp
 	@Check(FAST)
